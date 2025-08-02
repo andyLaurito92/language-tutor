@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Tutor - Proof of Concept</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .avatar-section {
+            flex: 2;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        #avatar-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .chat-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            margin-bottom: 15px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 85%;
+        }
+        
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .tutor-message {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        #send-btn {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        #send-btn:hover {
+            background: #0056b3;
+        }
+        
+        .avatar-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            display: block;
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .status-indicator {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 123, 255, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .emotion-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .emotion-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .emotion-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="avatar-section">
+            <canvas id="avatar-canvas"></canvas>
+            
+            <div class="avatar-controls">
+                <button class="control-btn" onclick="resetCamera()">Reset View</button>
+                <button class="control-btn" onclick="toggleWireframe()">Wireframe</button>
+                <button class="control-btn" onclick="changeBackground()">Background</button>
+            </div>
+            
+            <div class="emotion-controls">
+                <button class="emotion-btn" onclick="setEmotion('happy')" title="Happy">😊</button>
+                <button class="emotion-btn" onclick="setEmotion('neutral')" title="Neutral">😐</button>
+                <button class="emotion-btn" onclick="setEmotion('thinking')" title="Thinking">🤔</button>
+                <button class="emotion-btn" onclick="setEmotion('encouraging')" title="Encouraging">👍</button>
+            </div>
+            
+            <div class="status-indicator" id="status">
+                Ready to chat!
+            </div>
+        </div>
+        
+        <div class="chat-section">
+            <div class="header">
+                <h2>🎓 3D AI Language Tutor</h2>
+                <p>Proof of Concept Demo</p>
+            </div>
+            
+            <div class="chat-history" id="chat-history">
+                <div class="message tutor-message">
+                    <strong>AI Tutor:</strong> Hello! I'm your 3D language tutor. Try clicking on me or typing a message to see how I respond with animations and expressions!
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <input type="text" id="user-input" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+                <button id="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Three.js 3D Avatar Implementation
+        let scene, camera, renderer, avatar;
+        let mixer, clock;
+        let currentEmotion = 'neutral';
+        let isWireframe = false;
+        let backgroundIndex = 0;
+        const backgrounds = [
+            0x667eea,
+            0x764ba2,
+            0x43cea2,
+            0x185a9d,
+            0xff6b6b
+        ];
+        
+        // Initialize 3D scene
+        function init3D() {
+            const canvas = document.getElementById('avatar-canvas');
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(backgrounds[backgroundIndex]);
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 3);
+            
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            // Create simple avatar (sphere head + cylinder body for demo)
+            createSimpleAvatar();
+            
+            // Animation clock
+            clock = new THREE.Clock();
+            
+            // Mouse controls
+            addMouseControls();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start animation loop
+            animate();
+        }
+        
+        function createSimpleAvatar() {
+            const avatarGroup = new THREE.Group();
+            
+            // Head (sphere)
+            const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+            const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.5;
+            head.castShadow = true;
+            avatarGroup.add(head);
+            
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+            const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.15, 1.6, 0.4);
+            avatarGroup.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.15, 1.6, 0.4);
+            avatarGroup.add(rightEye);
+            
+            // Mouth (changes with emotions)
+            const mouthGeometry = new THREE.BoxGeometry(0.2, 0.05, 0.05);
+            const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0xff6b9d });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 1.35, 0.45);
+            mouth.name = 'mouth';
+            avatarGroup.add(mouth);
+            
+            // Body (cylinder)
+            const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.4, 1.2, 16);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x4a90e2 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.5;
+            body.castShadow = true;
+            avatarGroup.add(body);
+            
+            // Arms (simple cylinders)
+            const armGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8);
+            const armMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
+            
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.5, 0.7, 0);
+            leftArm.rotation.z = Math.PI / 6;
+            leftArm.name = 'leftArm';
+            avatarGroup.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.5, 0.7, 0);
+            rightArm.rotation.z = -Math.PI / 6;
+            rightArm.name = 'rightArm';
+            avatarGroup.add(rightArm);
+            
+            avatar = avatarGroup;
+            scene.add(avatar);
+            
+            // Add ground plane
+            const groundGeometry = new THREE.PlaneGeometry(10, 10);
+            const groundMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xffffff, 
+                transparent: true, 
+                opacity: 0.3 
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+        
+        function addMouseControls() {
+            const canvas = document.getElementById('avatar-canvas');
+            let isMouseDown = false;
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            canvas.addEventListener('mousedown', (event) => {
+                isMouseDown = true;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+            
+            canvas.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+            
+            canvas.addEventListener('mousemove', (event) => {
+                if (!isMouseDown) return;
+                
+                const deltaX = event.clientX - mouseX;
+                const deltaY = event.clientY - mouseY;
+                
+                avatar.rotation.y += deltaX * 0.01;
+                camera.position.y += deltaY * 0.01;
+                
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            });
+            
+            // Click interaction
+            canvas.addEventListener('click', () => {
+                playInteractionAnimation();
+                updateStatus('Avatar clicked! 👋');
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const delta = clock.getDelta();
+            
+            // Idle animation - gentle bobbing
+            if (avatar) {
+                avatar.position.y = Math.sin(clock.elapsedTime * 2) * 0.05;
+                
+                // Eye blink animation
+                const leftEye = avatar.children.find(child => child.position.x < 0 && child.position.y > 1.5);
+                const rightEye = avatar.children.find(child => child.position.x > 0 && child.position.y > 1.5);
+                
+                if (Math.random() < 0.005) { // Random blink
+                    if (leftEye && rightEye) {
+                        leftEye.scale.y = 0.1;
+                        rightEye.scale.y = 0.1;
+                        setTimeout(() => {
+                            leftEye.scale.y = 1;
+                            rightEye.scale.y = 1;
+                        }, 100);
+                    }
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function playInteractionAnimation() {
+            if (!avatar) return;
+            
+            // Wave animation
+            const rightArm = avatar.getObjectByName('rightArm');
+            if (rightArm) {
+                const originalRotation = rightArm.rotation.z;
+                
+                // Animate arm wave
+                const waveAnimation = () => {
+                    let progress = 0;
+                    const animate = () => {
+                        progress += 0.1;
+                        rightArm.rotation.z = originalRotation + Math.sin(progress * Math.PI) * 0.5;
+                        
+                        if (progress < 2) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            rightArm.rotation.z = originalRotation;
+                        }
+                    };
+                    animate();
+                };
+                
+                waveAnimation();
+            }
+        }
+        
+        function setEmotion(emotion) {
+            currentEmotion = emotion;
+            const mouth = avatar?.getObjectByName('mouth');
+            
+            if (!mouth) return;
+            
+            switch (emotion) {
+                case 'happy':
+                    // Smile - curved mouth
+                    mouth.scale.x = 1.2;
+                    mouth.rotation.z = 0.2;
+                    mouth.material.color.setHex(0xff6b9d);
+                    updateStatus('😊 Happy and encouraging!');
+                    break;
+                    
+                case 'thinking':
+                    // Neutral mouth, slight tilt
+                    mouth.scale.x = 0.8;
+                    mouth.rotation.z = -0.1;
+                    mouth.material.color.setHex(0xffb347);
+                    updateStatus('🤔 Thinking carefully...');
+                    break;
+                    
+                case 'encouraging':
+                    // Big smile
+                    mouth.scale.x = 1.5;
+                    mouth.rotation.z = 0.3;
+                    mouth.material.color.setHex(0xff6b9d);
+                    playInteractionAnimation(); // Add gesture
+                    updateStatus('👍 Great job! Keep going!');
+                    break;
+                    
+                default: // neutral
+                    mouth.scale.x = 1;
+                    mouth.rotation.z = 0;
+                    mouth.material.color.setHex(0xff6b9d);
+                    updateStatus('😐 Ready to learn!');
+            }
+        }
+        
+        function resetCamera() {
+            camera.position.set(0, 1.6, 3);
+            camera.lookAt(0, 1, 0);
+            updateStatus('Camera reset!');
+        }
+        
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            avatar.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.wireframe = isWireframe;
+                }
+            });
+            updateStatus(isWireframe ? 'Wireframe mode ON' : 'Wireframe mode OFF');
+        }
+        
+        function changeBackground() {
+            backgroundIndex = (backgroundIndex + 1) % backgrounds.length;
+            scene.background = new THREE.Color(backgrounds[backgroundIndex]);
+            updateStatus('Background changed!');
+        }
+        
+        function onWindowResize() {
+            const canvas = document.getElementById('avatar-canvas');
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        }
+        
+        // Chat functionality
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessageToChat('user', 'You', message);
+            
+            // Clear input
+            input.value = '';
+            
+            // Simulate AI response with avatar animation
+            setTimeout(() => {
+                const response = generateMockResponse(message);
+                addMessageToChat('tutor', 'AI Tutor', response.text);
+                
+                // Set appropriate emotion based on response
+                setEmotion(response.emotion);
+                
+                // Simulate speaking animation
+                simulateSpeaking(response.text);
+                
+            }, 1000);
+        }
+        
+        function addMessageToChat(sender, name, message) {
+            const chatHistory = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<strong>${name}:</strong> ${message}`;
+            
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
+        function generateMockResponse(userMessage) {
+            const responses = [
+                {
+                    text: "That's a great question! Let me help you with that. In Spanish, we would say...",
+                    emotion: "thinking"
+                },
+                {
+                    text: "Excellent work! Your pronunciation is improving. Let's try another phrase.",
+                    emotion: "encouraging"
+                },
+                {
+                    text: "I can see you're making good progress. Remember to focus on the accent marks.",
+                    emotion: "happy"
+                },
+                {
+                    text: "Let's practice that word again. Don't worry, everyone learns at their own pace!",
+                    emotion: "encouraging"
+                }
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        function simulateSpeaking(text) {
+            const mouth = avatar?.getObjectByName('mouth');
+            if (!mouth) return;
+            
+            updateStatus('🗣️ Speaking...');
+            
+            // Simple lip-sync simulation
+            const duration = text.length * 100; // Rough estimate based on text length
+            const interval = 150;
+            let elapsed = 0;
+            
+            const speakAnimation = setInterval(() => {
+                // Animate mouth opening/closing
+                mouth.scale.y = 0.5 + Math.random() * 0.5;
+                mouth.scale.x = 1 + Math.random() * 0.3;
+                
+                elapsed += interval;
+                if (elapsed >= duration) {
+                    clearInterval(speakAnimation);
+                    // Reset mouth
+                    mouth.scale.y = 1;
+                    mouth.scale.x = 1;
+                    updateStatus(`😊 ${currentEmotion === 'happy' ? 'Happy to help!' : 'Ready for more!'}`);
+                }
+            }, interval);
+        }
+        
+        function updateStatus(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            
+            // Auto-clear status after 3 seconds
+            setTimeout(() => {
+                if (status.textContent === message) {
+                    status.textContent = 'Ready to chat!';
+                }
+            }, 3000);
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            init3D();
+            updateStatus('3D Avatar loaded! Click me or start chatting!');
+        });
+    </script>
+</body>
+</html>
