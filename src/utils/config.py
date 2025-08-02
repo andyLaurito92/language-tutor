@@ -1,4 +1,8 @@
+# Standard library imports
 import os
+from typing import Any, Dict
+
+# Third-party imports
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -66,8 +70,16 @@ class Config:
     ]
     
     @classmethod
-    def validate_config(cls):
-        """Validate that required configuration is present."""
+    def validate_config(cls) -> bool:
+        """
+        Validate that required configuration is present.
+        
+        Returns:
+            True if configuration is valid
+            
+        Raises:
+            ValueError: If required configuration is missing or invalid
+        """
         if cls.MODEL_PROVIDER == 'openai':
             if not cls.OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY environment variable is required when using OpenAI")
@@ -80,8 +92,19 @@ class Config:
         return True
     
     @classmethod
-    def get_model_config(cls):
-        """Get the appropriate model configuration based on provider."""
+    def get_model_config(cls) -> Dict[str, Any]:
+        """
+        Get the appropriate model configuration based on provider.
+        
+        Returns:
+            Dictionary containing model configuration with keys:
+            - provider: The model provider ('openai' or 'ollama')
+            - model: The model name to use
+            - Additional provider-specific keys (api_key, base_url)
+            
+        Raises:
+            ValueError: If the model provider is not supported
+        """
         if cls.MODEL_PROVIDER == 'openai':
             return {
                 'provider': 'openai',

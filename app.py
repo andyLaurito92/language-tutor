@@ -1,16 +1,21 @@
-import streamlit as st
+# Standard library imports
 import os
 import sys
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+# Third-party imports
+import streamlit as st
 
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
+# Local imports
+from src.tutor.ai_tutor import AITutor
+from src.tutor.lessons import LessonManager
+from src.tutor.speech import SpeechHandler
 from src.utils.config import Config
 from src.utils.database import ProgressTracker
-from src.tutor.ai_tutor import AITutor
-from src.tutor.speech import SpeechHandler
-from src.tutor.lessons import LessonManager
 
 # Page configuration
 st.set_page_config(
@@ -20,7 +25,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-def initialize_session_state():
+def initialize_session_state() -> None:
     """Initialize session state variables."""
     if 'config_validated' not in st.session_state:
         st.session_state.config_validated = False
@@ -46,7 +51,7 @@ def initialize_session_state():
     if 'user_id' not in st.session_state:
         st.session_state.user_id = "default_user"  # In production, implement proper user auth
 
-def validate_configuration():
+def validate_configuration() -> bool:
     """Validate configuration for selected provider."""
     try:
         Config.validate_config()
@@ -65,7 +70,7 @@ def validate_configuration():
         
         return False
 
-def setup_sidebar():
+def setup_sidebar() -> None:
     """Setup the sidebar with learning options."""
     st.sidebar.title("🎓 AI Language Tutor")
     
@@ -170,7 +175,7 @@ def setup_sidebar():
     
     return selected_language, lesson_type, difficulty, use_voice
 
-def start_new_lesson(language: str, lesson_type: str, difficulty: str):
+def start_new_lesson(language: str, lesson_type: str, difficulty: str) -> None:
     """Start a new learning lesson."""
     try:
         # Initialize tutor if not already done or if provider changed

@@ -11,9 +11,10 @@ from datetime import datetime
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.utils.config import Config
+# Local imports
 from src.tutor.ai_tutor import AITutor
 from src.tutor.lessons import LessonManager
+from src.utils.config import Config
 from src.utils.database import ProgressTracker
 
 class SimpleTutor:
