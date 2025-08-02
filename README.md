@@ -52,6 +52,7 @@ streamlit run app.py
 ```
 language-tutor/
 ├── app.py                 # Main Streamlit application
+├── cli_tutor.py          # Command-line interface
 ├── src/
 │   ├── tutor/
 │   │   ├── __init__.py
@@ -65,6 +66,15 @@ language-tutor/
 │   └── __init__.py
 ├── data/
 │   └── lessons/          # Lesson content
+├── docs/                 # Documentation
+│   ├── CONDA_SETUP.md    # Conda environment setup
+│   ├── OLLAMA_SETUP.md   # Ollama model setup
+│   └── TECHNICAL_DOCS.md # Technical documentation
+├── scripts/              # Setup and utility scripts
+│   ├── setup.sh          # Linux setup script
+│   ├── setup.bat         # Windows setup script
+│   ├── validate_setup.py # Setup validation
+│   └── test_environment.py # Environment testing
 ├── requirements.txt
 └── README.md
 ```

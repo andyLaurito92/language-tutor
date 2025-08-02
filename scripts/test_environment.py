@@ -183,7 +183,7 @@ def main():
             print(f"❌ {len(failed_imports)} dependency issues found")
         if missing_files:
             print(f"❌ {len(missing_files)} missing files found")
-        print("📝 Please check the installation guide in CONDA_SETUP.md")
+        print("📝 Please check the installation guide in ../docs/CONDA_SETUP.md")
 
 if __name__ == "__main__":
     import os
