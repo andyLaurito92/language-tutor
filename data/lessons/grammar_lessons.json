@@ -1,0 +1,31 @@
+{
+  "beginner": [
+    {
+      "id": "gram_begin_1",
+      "title": "Present Tense Verbs",
+      "description": "Learn basic present tense conjugation",
+      "rules": [
+        "Regular verbs follow standard patterns",
+        "Subject-verb agreement is important",
+        "Use present tense for current actions and habits"
+      ],
+      "examples": [
+        "I speak English",
+        "She works at a hospital",
+        "They live in New York"
+      ],
+      "exercises": [
+        {
+          "type": "fill_blank",
+          "question": "I ___ (work) at a school.",
+          "answer": "work"
+        },
+        {
+          "type": "fill_blank",
+          "question": "She ___ (study) French.",
+          "answer": "studies"
+        }
+      ]
+    }
+  ]
+}

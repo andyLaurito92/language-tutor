@@ -1,0 +1,120 @@
+{
+  "beginner": [
+    {
+      "id": "conv_begin_1",
+      "title": "Basic Greetings",
+      "description": "Learn how to greet people and introduce yourself",
+      "topics": [
+        "hello",
+        "goodbye",
+        "my name is",
+        "nice to meet you"
+      ],
+      "vocabulary": [
+        "hello",
+        "goodbye",
+        "name",
+        "please",
+        "thank you"
+      ],
+      "sample_dialogues": [
+        {
+          "scenario": "Meeting someone new",
+          "dialogue": [
+            "A: Hello! My name is Sarah. What's your name?",
+            "B: Hi Sarah! I'm Miguel. Nice to meet you!",
+            "A: Nice to meet you too, Miguel!"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conv_begin_2",
+      "title": "Asking for Directions",
+      "description": "Learn how to ask for and give basic directions",
+      "topics": [
+        "where is",
+        "how to get to",
+        "left",
+        "right",
+        "straight"
+      ],
+      "vocabulary": [
+        "where",
+        "left",
+        "right",
+        "straight",
+        "near",
+        "far"
+      ],
+      "sample_dialogues": [
+        {
+          "scenario": "Finding a restaurant",
+          "dialogue": [
+            "A: Excuse me, where is the nearest restaurant?",
+            "B: Go straight for two blocks, then turn left.",
+            "A: Thank you very much!"
+          ]
+        }
+      ]
+    }
+  ],
+  "intermediate": [
+    {
+      "id": "conv_inter_1",
+      "title": "Making Plans",
+      "description": "Practice discussing future plans and schedules",
+      "topics": [
+        "future tense",
+        "time expressions",
+        "making suggestions"
+      ],
+      "vocabulary": [
+        "tomorrow",
+        "next week",
+        "maybe",
+        "definitely",
+        "probably"
+      ],
+      "sample_dialogues": [
+        {
+          "scenario": "Planning weekend activities",
+          "dialogue": [
+            "A: What are you doing this weekend?",
+            "B: I'm thinking about going to the movies. Would you like to come?",
+            "A: That sounds great! What time should we meet?"
+          ]
+        }
+      ]
+    }
+  ],
+  "advanced": [
+    {
+      "id": "conv_adv_1",
+      "title": "Expressing Opinions",
+      "description": "Learn to express and defend your opinions in discussions",
+      "topics": [
+        "opinion expressions",
+        "agreement/disagreement",
+        "argumentation"
+      ],
+      "vocabulary": [
+        "in my opinion",
+        "I believe",
+        "however",
+        "furthermore",
+        "on the other hand"
+      ],
+      "sample_dialogues": [
+        {
+          "scenario": "Discussing current events",
+          "dialogue": [
+            "A: What do you think about the new environmental policies?",
+            "B: In my opinion, they're a step in the right direction, but more needs to be done.",
+            "A: I agree to some extent, however, I think the implementation might be challenging."
+          ]
+        }
+      ]
+    }
+  ]
+}
