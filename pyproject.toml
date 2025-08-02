@@ -1,0 +1,131 @@
+[tool.black]
+# Black configuration for consistent Python code formatting
+# Following copilot-instructions.md style guidelines
+
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # Directories to exclude
+    \.git
+    | __pycache__
+    | \.pytest_cache
+    | \.venv
+    | venv
+    | build
+    | dist
+    | \.egg-info
+)/
+'''
+
+# Enable experimental string processing for better string formatting
+experimental-string-processing = true
+# Enable preview features for latest formatting improvements  
+preview = true
+
+[tool.isort]
+# isort configuration for import sorting
+# Follows copilot-instructions.md import organization principles
+
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# Import order: standard library, third party, local
+known_first_party = ["src"]
+known_third_party = [
+    "streamlit", "langchain", "openai", "ollama", "speechrecognition", 
+    "pyaudio", "pydub", "numpy", "pandas", "matplotlib", "seaborn", 
+    "requests", "dotenv", "jupyter", "ipython"
+]
+
+# Group imports by type
+import_heading_stdlib = "Standard library imports"
+import_heading_thirdparty = "Third-party imports"  
+import_heading_firstparty = "Local imports"
+
+# Skip these files/directories
+skip = [
+    ".git", "__pycache__", ".pytest_cache", ".venv", "venv", 
+    "build", "dist", "*.egg-info"
+]
+
+[tool.mypy]
+# MyPy configuration for static type checking
+# Enforces type hints as per copilot-instructions.md guidelines
+
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_optional = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+# Allow dynamic typing for external libraries initially
+ignore_missing_imports = true
+
+# Exclude certain files/directories
+exclude = [
+    "build/",
+    "dist/", 
+    ".venv/",
+    "venv/",
+    "__pycache__/",
+    ".pytest_cache/"
+]
+
+[[tool.mypy.overrides]]
+module = "test_*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+# Pytest configuration for test execution
+# Based on copilot-instructions.md testing guidelines
+
+testpaths = ["."]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+python_classes = ["Test*"]
+
+# Add src to Python path for imports
+pythonpath = ["src"]
+
+# Coverage settings
+addopts = [
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+    "--cov-report=html",
+    "--cov-fail-under=70",
+    "-v",
+    "--tb=short"
+]
+
+# Minimum coverage percentage (can be adjusted as tests improve)
+cov-fail-under = 70
+
+# Test discovery patterns
+minversion = "6.0"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+# Markers for test categorization
+markers = [
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests", 
+    "slow: marks tests as slow running",
+    "audio: marks tests that require audio hardware"
+]

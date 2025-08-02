@@ -1,0 +1,106 @@
+[MASTER]
+# Pylint configuration for advanced Python code analysis
+# Based on copilot-instructions.md quality standards
+
+# Use multiple processes to speed up pylint
+jobs=0
+
+# Pickle collected data for later comparisons
+persistent=yes
+
+# When enabled, pylint would attempt to guess common patterns and improve messages
+suggestion-mode=yes
+
+[MESSAGES CONTROL]
+# Disable specific warnings/errors that conflict with our style or are not relevant
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    import-error,
+    no-name-in-module,
+    line-too-long,  # Handled by Black
+    bad-continuation,  # Handled by Black
+    invalid-name,  # Allow short variable names in some contexts
+
+[REPORTS]
+# Set the output format
+output-format=text
+
+# Include message's symbol in the output
+include-ids=no
+
+# Template used to display messages
+msg-template={path}:{line}:{column}: {msg_id}: {msg} ({symbol})
+
+[REFACTORING]
+# Maximum number of nested blocks for function / method body
+max-nested-blocks=5
+
+[BASIC]
+# Regular expression matching correct function names
+function-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression matching correct variable names
+variable-rgx=[a-z_][a-z0-9_]{2,30}$
+
+# Regular expression matching correct constant names
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+# Regular expression matching correct class names
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+# Regular expression matching correct module names
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+
+# Regular expression matching correct method names
+method-rgx=[a-z_][a-z0-9_]{2,30}$
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=88
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=7
+
+# Maximum number of locals for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=12
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+# Maximum number of parents for a class
+max-parents=7
+
+# Maximum number of attributes for a class
+max-attributes=7
+
+# Minimum number of public methods for a class
+min-public-methods=2
+
+# Maximum number of public methods for a class
+max-public-methods=20
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities
+ignore-imports=no
