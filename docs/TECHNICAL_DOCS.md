@@ -90,15 +90,15 @@ The AI Language Tutor is a comprehensive language learning application that comb
 ```bash
 git clone <repository-url>
 cd language-tutor
-chmod +x setup.sh
-./setup.sh
+chmod +x scripts/setup.sh
+./scripts/setup.sh
 ```
 
 #### Windows
 ```cmd
 git clone <repository-url>
 cd language-tutor
-setup.bat
+scripts\setup.bat
 ```
 
 ### Manual Setup
