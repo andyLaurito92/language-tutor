@@ -1,9 +1,12 @@
-from typing import List, Dict, Any, Optional
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.chains import ConversationChain
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+# Standard library imports
 import json
+from typing import Any, Dict, List, Optional
+
+# Third-party imports
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # Import model providers
 try:
@@ -17,8 +20,8 @@ try:
     OLLAMA_AVAILABLE = True
 except ImportError:
     try:
-        from langchain_community.llms import Ollama
         from langchain_community.chat_models import ChatOllama
+        from langchain_community.llms import Ollama
         OLLAMA_AVAILABLE = True
     except ImportError:
         OLLAMA_AVAILABLE = False
@@ -49,7 +52,7 @@ class AITutor:
         self.current_lesson_type = None
         self.lesson_context = {}
     
-    def _initialize_llm(self):
+    def _initialize_llm(self) -> Any:
         """Initialize the appropriate LLM based on configuration."""
         provider = self.model_config.get('provider', 'ollama')
         
@@ -77,12 +80,13 @@ class AITutor:
             raise ValueError(f"Unsupported provider: {provider}")
     
     @classmethod
-    def from_config(cls, config_class):
+    @classmethod
+    def from_config(cls, config_class: Any) -> 'AITutor':
         """Create AITutor instance from Config class."""
         model_config = config_class.get_model_config()
         return cls(model_config)
     
-    def set_learning_context(self, language: str, difficulty: str, lesson_type: str, lesson_data: Dict = None):
+    def set_learning_context(self, language: str, difficulty: str, lesson_type: str, lesson_data: Optional[Dict[str, Any]] = None) -> None:
         """Set the current learning context for the tutor."""
         self.current_language = language
         self.current_difficulty = difficulty

@@ -1,8 +1,9 @@
+# Standard library imports
 import json
 import os
-from datetime import datetime
-from typing import Dict, List, Any
 import sqlite3
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 class ProgressTracker:
     """Handles user progress tracking and data persistence."""
@@ -12,7 +13,7 @@ class ProgressTracker:
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         self.init_database()
     
-    def init_database(self):
+    def init_database(self) -> None:
         """Initialize the SQLite database with required tables."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -76,7 +77,7 @@ class ProgressTracker:
         
         return session_id
     
-    def end_session(self, session_id: int, score: int = None):
+    def end_session(self, session_id: int, score: Optional[int] = None) -> None:
         """End a learning session."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -97,7 +98,7 @@ class ProgressTracker:
         conn.commit()
         conn.close()
     
-    def log_interaction(self, session_id: int, user_input: str, ai_response: str, feedback_score: int = None):
+    def log_interaction(self, session_id: int, user_input: str, ai_response: str, feedback_score: Optional[int] = None) -> None:
         """Log an interaction between user and AI."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()

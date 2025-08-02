@@ -1,6 +1,7 @@
-from typing import List, Dict, Any
+# Standard library imports
 import json
 import os
+from typing import Any, Dict, List
 
 class LessonManager:
     """Manages lesson content and structure."""
