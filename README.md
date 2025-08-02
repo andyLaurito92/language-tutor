@@ -35,6 +35,26 @@ cp .env.example .env
 streamlit run app.py
 ```
 
+## macOS Application
+
+You can also run the AI Language Tutor as a native macOS application:
+
+### Download Pre-built App
+
+1. Go to the [Releases](../../releases) page
+2. Download the latest `.dmg` file
+3. Open the DMG and drag the app to your Applications folder
+4. Launch "AI Language Tutor" from Applications
+
+### Build Your Own
+
+See [BUILD_MACOS.md](BUILD_MACOS.md) for detailed instructions on building the macOS application yourself.
+
+```bash
+# Quick build
+./build_macos.sh
+```
+
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key for GPT-4 and Whisper access
@@ -53,6 +73,10 @@ streamlit run app.py
 language-tutor/
 ├── app.py                 # Main Streamlit application
 ├── cli_tutor.py          # Command-line interface
+├── launcher.py           # macOS app launcher script
+├── build_macos.sh        # macOS app build script
+├── ai-language-tutor.spec # PyInstaller configuration
+├── BUILD_MACOS.md        # macOS build instructions
 ├── src/
 │   ├── tutor/
 │   │   ├── __init__.py
@@ -75,7 +99,10 @@ language-tutor/
 │   ├── setup.bat         # Windows setup script
 │   ├── validate_setup.py # Setup validation
 │   └── test_environment.py # Environment testing
+├── .github/workflows/    # CI/CD workflows
+│   └── build-macos.yml   # macOS app build automation
 ├── requirements.txt
+├── requirements_build.txt # Dependencies for building
 └── README.md
 ```
 
