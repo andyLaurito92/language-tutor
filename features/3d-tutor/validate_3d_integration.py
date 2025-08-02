@@ -395,10 +395,14 @@ def main():
         }
     }
     
-    with open("3d_tutor_validation_report.json", "w") as f:
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    report_path = os.path.join(script_dir, "3d_tutor_validation_report.json")
+    
+    with open(report_path, "w") as f:
         json.dump(validation_report, f, indent=2)
     
-    print(f"\n📄 Detailed report saved to: 3d_tutor_validation_report.json")
+    print(f"\n📄 Detailed report saved to: {report_path}")
     print("\n🚀 Ready to proceed with 3D avatar implementation planning!")
 
 if __name__ == "__main__":
