@@ -101,3 +101,10 @@ dmypy.json
 
 # Streamlit
 .streamlit/
+
+# Test artifacts
+test_*.db
+integration_*.db
+full_system.db
+*.sqlite
+*.db
