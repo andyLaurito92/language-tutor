@@ -1,0 +1,105 @@
+name: PR Protection Requirements
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main ]
+
+jobs:
+  pr-requirements:
+    name: PR Requirements Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check PR title format
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        echo "PR Title: $PR_TITLE"
+        
+        # Check if PR title follows conventional commit format
+        if [[ ! "$PR_TITLE" =~ ^(feature|bugfix|docs|refactor|test|chore|hotfix)(\(.+\))?: .+ ]]; then
+          echo "❌ PR title must follow format: type(scope): description"
+          echo "Examples:"
+          echo "  - feature(ai-tutor): add voice recognition support"
+          echo "  - bugfix(speech): fix audio playback stuttering"
+          echo "  - docs: update installation guide"
+          exit 1
+        fi
+        echo "✅ PR title format is correct"
+    
+    - name: Check PR description
+      run: |
+        PR_BODY="${{ github.event.pull_request.body }}"
+        if [[ -z "$PR_BODY" ]]; then
+          echo "❌ PR description is required"
+          echo "Please provide a description explaining:"
+          echo "  - What changes were made"
+          echo "  - Why they were needed"
+          echo "  - How to test them"
+          exit 1
+        fi
+        echo "✅ PR description provided"
+    
+    - name: Check for linked issue
+      run: |
+        PR_BODY="${{ github.event.pull_request.body }}"
+        if [[ ! "$PR_BODY" =~ (Fixes|Closes|Resolves)\ #[0-9]+ ]]; then
+          echo "❌ PR must link to an issue using 'Fixes #123', 'Closes #123', or 'Resolves #123'"
+          exit 1
+        fi
+        echo "✅ PR links to an issue"
+    
+    - name: Check branch name format
+      run: |
+        BRANCH_NAME="${{ github.head_ref }}"
+        echo "Branch name: $BRANCH_NAME"
+        
+        # Check if branch follows naming convention
+        if [[ ! "$BRANCH_NAME" =~ ^(feature|bugfix|docs|refactor|test|chore|hotfix)/.+ ]]; then
+          echo "❌ Branch name must follow format: type/description"
+          echo "Examples:"
+          echo "  - feature/add-voice-recognition-support"
+          echo "  - bugfix/fix-audio-playback-stuttering"
+          echo "  - docs/update-installation-guide"
+          exit 1
+        fi
+        echo "✅ Branch name format is correct"
+
+  files-changed:
+    name: Check Changed Files
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v42
+      with:
+        files: |
+          src/**/*.py
+          *.py
+          requirements*.txt
+          .github/workflows/*.yml
+    
+    - name: Validate Python file changes
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        echo "Changed Python files:"
+        echo "${{ steps.changed-files.outputs.all_changed_files }}"
+        
+        # Check if any critical files were modified
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          if [[ "$file" == "requirements.txt" || "$file" == "requirements_no_audio.txt" ]]; then
+            echo "⚠️  Dependencies modified: $file"
+            echo "Please ensure all team members update their environments"
+          fi
+        done
+        
+        echo "✅ File changes validated"

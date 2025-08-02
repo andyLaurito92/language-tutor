@@ -1,0 +1,111 @@
+name: Basic PR Validation
+
+# Minimal workflow that runs basic checks without heavy dependencies
+# Used as fallback when full CI workflow has issues
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  basic-validation:
+    name: Basic PR Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Basic Python syntax check
+      run: |
+        echo "Checking Python syntax..."
+        python -m py_compile app.py
+        python -m py_compile cli_tutor.py
+        find src -name "*.py" -exec python -m py_compile {} \;
+        echo "✅ Python syntax check passed"
+    
+    - name: Check imports
+      run: |
+        echo "Checking basic imports..."
+        python -c "import ast, sys, os; [ast.parse(open(f).read()) for f in ['app.py', 'cli_tutor.py']]"
+        echo "✅ Import structure validated"
+    
+    - name: File structure validation
+      run: |
+        echo "Validating project structure..."
+        
+        # Check required files exist
+        required_files=(
+          "README.md"
+          "requirements.txt"
+          "requirements_no_audio.txt"
+          "app.py"
+          "cli_tutor.py"
+          "src/__init__.py"
+          "copilot-instructions.md"
+        )
+        
+        for file in "${required_files[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "❌ Required file missing: $file"
+            exit 1
+          fi
+        done
+        
+        echo "✅ Project structure validated"
+    
+    - name: Check configuration files
+      run: |
+        echo "Validating quality tool configurations..."
+        
+        config_files=(
+          ".flake8"
+          ".pylintrc"
+          "pyproject.toml"
+          "sonar-project.properties"
+          ".pre-commit-config.yaml"
+          "Makefile"
+          "requirements-dev.txt"
+        )
+        
+        for file in "${config_files[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "❌ Configuration file missing: $file"
+            exit 1
+          fi
+        done
+        
+        echo "✅ Configuration files validated"
+    
+    - name: Validate YAML files
+      run: |
+        echo "Validating YAML syntax..."
+        python3 -c "
+        import yaml
+        import os
+
+        yaml_files = [
+            '.github/workflows/ci.yml',
+            '.github/workflows/pr-protection.yml', 
+            '.github/workflows/basic-validation.yml',
+            '.pre-commit-config.yaml'
+        ]
+
+        for file in yaml_files:
+            if os.path.exists(file):
+                try:
+                    with open(file, 'r') as f:
+                        yaml.safe_load(f)
+                    print(f'✅ {file} is valid YAML')
+                except yaml.YAMLError as e:
+                    print(f'❌ {file} has YAML syntax error: {e}')
+                    exit(1)
+            else:
+                print(f'⚠️  {file} not found')
+        "
+        echo "✅ YAML validation completed"
