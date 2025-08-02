@@ -26,6 +26,7 @@ MANIFEST
 # PyInstaller
 *.manifest
 *.spec
+!ai-language-tutor.spec
 
 # Installer logs
 pip-log.txt
@@ -101,3 +102,8 @@ dmypy.json
 
 # Streamlit
 .streamlit/
+
+# macOS build artifacts
+*.app
+*.dmg
+.DS_Store

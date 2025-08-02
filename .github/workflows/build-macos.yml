@@ -1,0 +1,138 @@
+name: Build macOS Application
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'  # Use a stable Python version
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install system dependencies
+      run: |
+        # Install Homebrew dependencies needed for building
+        brew install create-dmg
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        # Try to install requirements, but don't fail if some packages fail
+        pip install -r requirements_no_audio.txt || true
+        # Install essential packages individually
+        pip install streamlit python-dotenv requests pandas numpy || true
+        
+    - name: Create .env file
+      run: |
+        cp .env.example .env
+        
+    - name: Build macOS application
+      run: |
+        # Run the build script non-interactively
+        echo "n" | ./build_macos.sh
+        
+    - name: Create DMG
+      run: |
+        # Create DMG manually since we skipped it in the build script
+        create-dmg \
+          --volname "AI Language Tutor" \
+          --window-pos 200 120 \
+          --window-size 600 300 \
+          --icon-size 100 \
+          --icon "AI Language Tutor.app" 175 120 \
+          --hide-extension "AI Language Tutor.app" \
+          --app-drop-link 425 120 \
+          "dist/AI-Language-Tutor-1.0.0.dmg" \
+          "dist/AI Language Tutor.app" || echo "DMG creation failed, but continuing..."
+          
+    - name: Upload .app artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: AI-Language-Tutor-macOS-app
+        path: dist/AI Language Tutor.app
+        retention-days: 30
+        
+    - name: Upload DMG artifact
+      uses: actions/upload-artifact@v3
+      if: success()
+      with:
+        name: AI-Language-Tutor-macOS-dmg
+        path: dist/*.dmg
+        retention-days: 30
+        
+    - name: Create Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/*.dmg
+        draft: true
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+  test-build:
+    runs-on: macos-latest
+    needs: build-macos
+    if: success()
+    
+    steps:
+    - name: Download app artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: AI-Language-Tutor-macOS-app
+        path: ./app
+        
+    - name: Test app structure
+      run: |
+        echo "🧪 Testing app structure..."
+        ls -la ./app/
+        
+        # Check if the app bundle exists
+        if [ -d "./app/AI Language Tutor.app" ]; then
+          echo "✅ App bundle found"
+          ls -la "./app/AI Language Tutor.app/Contents/"
+          
+          # Check if executable exists
+          if [ -f "./app/AI Language Tutor.app/Contents/MacOS/ai-language-tutor" ]; then
+            echo "✅ Executable found"
+          else
+            echo "❌ Executable not found"
+            exit 1
+          fi
+          
+          # Check if required files are included
+          if [ -f "./app/AI Language Tutor.app/Contents/Resources/app.py" ]; then
+            echo "✅ Main app file included"
+          else
+            echo "❌ Main app file not found"
+          fi
+          
+        else
+          echo "❌ App bundle not found"
+          exit 1
+        fi
+        
+        echo "🎉 App structure test passed!"

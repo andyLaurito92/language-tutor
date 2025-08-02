@@ -1,0 +1,19 @@
+# Essential dependencies for building the macOS app
+# This file contains only the core dependencies needed for the application to run
+
+streamlit>=1.37.0
+python-dotenv>=1.0.1
+requests>=2.32.3
+pandas>=2.2.2
+numpy>=1.26.4
+
+# Core AI dependencies (install what's available)
+langchain>=0.2.14
+langchain-core>=0.2.43
+
+# Optional dependencies - install if available
+# langchain-openai>=0.1.20
+# langchain-ollama>=0.1.0
+# langchain-community>=0.2.12
+# openai>=1.40.0
+# ollama>=0.3.0
