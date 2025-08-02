@@ -27,12 +27,13 @@ class Config:
         'Spanish': 'es',
         'French': 'fr',
         'German': 'de',
-        'Italian': 'it',
+        'Italian': 'it', 
         'Portuguese': 'pt',
         'Russian': 'ru',
         'Japanese': 'ja',
         'Korean': 'ko',
         'Chinese': 'zh',
+        'Catalan': 'ca',
         'English': 'en'
     }
     
