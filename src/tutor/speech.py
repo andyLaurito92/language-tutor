@@ -1,7 +1,10 @@
+# Standard library imports
 import io
 import tempfile
 import wave
-from typing import Optional, Tuple, Dict, Any
+from typing import Any, Dict, Optional, Tuple
+
+# Third-party imports
 import speech_recognition as sr
 import streamlit as st
 
